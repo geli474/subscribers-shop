@@ -2,150 +2,290 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Купити підписників</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #fff;
+      background: linear-gradient(135deg, #001f3f, #005f73, #0a9396, #94d2bd);
+      font-family: 'Arial', sans-serif;
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: start;
+      height: 100vh;
+      margin: 0;
+      padding: 40px 10px;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    .thank-you {
+      background-color: #222;
+      color: #0ff;
+      border: 2px solid #0ff;
+      padding: 15px 25px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      display: none;
+      text-align: center;
+      font-weight: bold;
+      box-shadow: 0 0 15px #0ff;
+    }
+
+    .container {
+      background-color: #1a1a1a;
       padding: 30px;
-    }
-    h1 {
-      color: #00ffd5;
-    }
-    .box {
-      background: #1e1e1e;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px #00ffd555;
-      width: 100%;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #00ffc3;
       max-width: 400px;
-    }
-    input, select, button {
       width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ffc3;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
       border-radius: 8px;
       border: none;
+      margin-bottom: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
-    button {
-      background: #00ffd5;
-      color: #000;
+
+    .amount {
+      color: #00ffc3;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    button, #paypal-button-container > div {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 20px;
-    }
-    .price {
       margin-top: 10px;
-      font-weight: bold;
-      color: #00ffd5;
-      font-size: 18px;
     }
+
+    button {
+      background-color: #00ffc3;
+      border: none;
+      color: #111;
+      transition: background-color 0.3s;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #008f74;
+    }
+
+    button:disabled {
+      background-color: #555 !important;
+      cursor: not-allowed;
+      color: #ccc !important;
+    }
+
     .info {
       margin-top: 15px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .info b {
+      color: #00ffc3;
+    }
+
+    .payment-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .monobank-pay-button {
+      background-color: #0077cc;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: bold;
       font-size: 16px;
-      color: #00ff99;
+      transition: background-color 0.3s;
+    }
+
+    .monobank-pay-button:hover {
+      background-color: #005fa3;
     }
   </style>
 </head>
 <body>
-  <h1>Купити підписників</h1>
-  <div class="box">
+
+  <div class="thank-you" id="thankYou">
+    ✅ Дякуємо за покупку!<br>
+    📩 Надішліть, будь ласка, скріншот оплати в Telegram: <b>@User11f2</b>
+  </div>
+
+  <div class="container">
+    <h1>Купити підписників</h1>
     <label for="platform">Платформа:</label>
-    <select id="platform" onchange="updateLimits()">
-      <option value="Telegram">Telegram</option>
-      <option value="YouTube">YouTube</option>
-      <option value="TikTok">TikTok</option>
+    <select id="platform">
+      <option value="telegram">Telegram</option>
+      <option value="youtube">YouTube</option>
+      <option value="tiktok">TikTok</option>
     </select>
 
-    <label for="amount">Кількість:</label>
-    <input type="number" id="amount" value="100" />
+    <label for="quantity">Кількість:</label>
+    <input type="number" id="quantity" value="100" min="1" />
 
     <label for="link">Посилання на канал:</label>
     <input type="text" id="link" placeholder="https://t.me/..." />
 
-    <div class="price" id="total">Сума: 200 грн</div>
+    <div class="amount" id="amount">Сума: 200.00 грн</div>
 
-    <button onclick="submitOrder()">Купити</button>
+    <div class="payment-buttons">
+      <button id="buyButton" onclick="handleBuy()" disabled>Купити</button>
+      <div id="paypal-button-container"></div>
+      <button class="monobank-pay-button" id="monobankPayButton" disabled>Оплата Monobank</button>
+    </div>
 
-    <div class="info">💬 Після оплати надішліть скріншот у Telegram: <a href="https://t.me/User11f2" target="_blank" style="color:#00ff99; text-decoration:none;">@User11f2</a></div>
+    <div class="info">
+      💬 Після оплати надішліть скріншот у Telegram: <b>@User11f2</b>
+    </div>
   </div>
 
-  <script>
-    const amountInput = document.getElementById("amount");
-    const totalDisplay = document.getElementById("total");
-    const platformSelect = document.getElementById("platform");
+  <script src="https://www.paypal.com/sdk/js?client-id=AYCOt9GU4T5Pf--Q2a3TY-xW_ejzvz7BR81tGZL3Ihm2cwdEm_HHBbhVv6iMmpyvRPavwVb00rMf1Eb4&currency=UAH"></script>
 
-    const platformLimits = {
-      "Telegram": { min: 100, max: 500, price: 2 },
-      "YouTube": { min: 100, max: 1000, price: 2.5 },
-      "TikTok": { min: 100, max: 10000, price: 0.5 }
+  <script>
+    const quantityInput = document.getElementById("quantity");
+    const amountText = document.getElementById("amount");
+    const thankYou = document.getElementById("thankYou");
+    const platformSelect = document.getElementById("platform");
+    const linkInput = document.getElementById("link");
+    const buyButton = document.getElementById("buyButton");
+    const monobankPayButton = document.getElementById("monobankPayButton");
+
+    // Ліміти по платформах
+    const limits = {
+      telegram: 1000,
+      youtube: 5000,
+      tiktok: 10000
     };
 
-    function updateLimits() {
+    // Ціни по платформах (грн)
+    const prices = {
+      telegram: 2.0,
+      youtube: 1.5,
+      tiktok: 0.5
+    };
+
+    function updateAmount() {
       const platform = platformSelect.value;
-      const { min, max } = platformLimits[platform];
-      amountInput.min = min;
-      amountInput.max = max;
-      if (+amountInput.value < min) amountInput.value = min;
-      if (+amountInput.value > max) amountInput.value = max;
-      updatePrice();
+      let qty = parseInt(quantityInput.value) || 0;
+      const limit = limits[platform];
+      if (qty > limit) qty = limit;
+      quantityInput.value = qty;
+
+      const price = prices[platform];
+      const total = qty * price;
+
+      amountText.textContent = `Сума: ${total.toFixed(2)} грн`;
     }
 
-    function updatePrice() {
+    function validateForm() {
+      const link = linkInput.value.trim();
+      const qty = parseInt(quantityInput.value) || 0;
       const platform = platformSelect.value;
-      const amount = parseInt(amountInput.value) || 0;
-      const price = platformLimits[platform].price;
-      const total = (amount * price).toFixed(2);
-      totalDisplay.textContent = `Сума: ${total} грн`;
+
+      const isValid = link.length > 0 && qty > 0 && qty <= limits[platform];
+      buyButton.disabled = !isValid;
+      monobankPayButton.disabled = !isValid;
     }
 
-    amountInput.addEventListener("input", () => {
-      const platform = platformSelect.value;
-      const { min, max } = platformLimits[platform];
-      let val = parseInt(amountInput.value);
-      if (val < min) val = min;
-      if (val > max) val = max;
-      amountInput.value = val;
-      updatePrice();
+    quantityInput.addEventListener("input", () => {
+      updateAmount();
+      validateForm();
     });
 
-    function submitOrder() {
-      const amount = parseInt(amountInput.value);
-      const platform = platformSelect.value;
-      const link = document.getElementById("link").value.trim();
-      const price = platformLimits[platform].price;
-      const total = (amount * price).toFixed(2);
+    platformSelect.addEventListener("change", () => {
+      updateAmount();
+      validateForm();
+    });
 
-      if (!link || !link.startsWith("http")) {
-        alert("❗ Введи правильне посилання на канал");
-        return;
+    linkInput.addEventListener("input", () => {
+      validateForm();
+    });
+
+    // PayPal кнопка
+    paypal.Buttons({
+      style: {
+        shape: 'rect',
+        color: 'blue',
+        layout: 'vertical',
+        label: 'paypal',
+      },
+      createOrder: function(data, actions) {
+        const qty = parseInt(quantityInput.value);
+        const platform = platformSelect.value;
+        const price = prices[platform];
+        const total = (qty * price).toFixed(2);
+
+        if (qty <= 0 || qty > limits[platform]) {
+          alert("Невірна кількість!");
+          return;
+        }
+
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              currency_code: "UAH",
+              value: total,
+            },
+            description: `${platform} - Купівля ${qty} підписників`
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          thankYou.style.display = "block";
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          buyButton.disabled = true;
+          monobankPayButton.disabled = true;
+          alert('Оплата пройшла успішно! Дякуємо, ' + details.payer.name.given_name);
+        });
+      },
+      onError: function(err) {
+        alert("Сталася помилка під час оплати через PayPal.");
+        console.error(err);
       }
+    }).render('#paypal-button-container');
 
-      const message = `🛒 Нова покупка\n\n📦 Кількість: ${amount}\n💰 Сума: ${total} грн\n📲 Платформа: ${platform}\n🔗 Посилання: ${link}`;
-
-      // Надсилання в Telegram-бота
-      fetch("https://api.telegram.org/botВАШ_ТОКЕН/sendMessage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: ВАШ_CHAT_ID,
-          text: message
-        })
-      }).then(() => {
-        alert("✅ Замовлення прийнято. Оплатіть через Monobank 👇");
-        window.open("https://send.monobank.ua/jar/9iLQmykm1J", "_blank");
-      }).catch(() => {
-        alert("❌ Помилка надсилання повідомлення до Telegram.");
-      });
+    function handleBuy() {
+      alert("Будь ласка, скористайтесь кнопкою PayPal або оплатою Monobank.");
     }
 
-    updateLimits();
+    // Оплата Monobank кнопка відкриває посилання
+    monobankPayButton.addEventListener("click", () => {
+      // Відкриваємо посилання на Monobank Jar
+      window.open("https://send.monobank.ua/jar/9iLQmykm1J", "_blank");
+    });
+
+    // Ініціалізація
+    updateAmount();
+    validateForm();
   </script>
+
 </body>
 </html>
